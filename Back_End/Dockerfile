@@ -1,39 +1,42 @@
-# Stage 1: Build
+# Stage 1: Build stage
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package manifest files
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies required for building)
+# Install all dependencies required for TypeScript compilation
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy source files
+COPY tsconfig.json ./
+COPY src/ ./src/
+COPY DB/ ./DB/
+COPY index.ts ./
 
-# Build the TypeScript code to JavaScript
+# Compile TypeScript code to JS in /app/dist
 RUN npm run build
 
-# Stage 2: Production
-FROM node:20-alpine
+# Stage 2: Production execution stage
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install ONLY production dependencies (keeps image size small)
-RUN npm install --omit=dev
-
-# Copy compiled code from builder stage
-COPY --from=builder /app/dist ./dist
-
-# Set standard Node production environment variable
+# Set production environment
 ENV NODE_ENV=production
 
-# The port your application binds to
+# Copy package manifest files
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm install --omit=dev
+
+# Copy compiled JavaScript output from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Expose default port (Railway overrides process.env.PORT dynamically)
 EXPOSE 5000
 
-# Start the application using the start script in package.json
-CMD ["npm", "start"]
+# Run Node.js directly for clean process signal handling (SIGTERM/SIGINT)
+CMD ["node", "dist/index.js"]
