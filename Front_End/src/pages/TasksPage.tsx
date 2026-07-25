@@ -85,13 +85,22 @@ export const TasksPage: React.FC = () => {
   const handleResetFilters = () => {
     setFilters({
       page: 1,
-      limit: 10,
+      limit: viewMode === 'kanban' ? 100 : 10,
       sortBy: 'createdAt',
       sortOrder: 'desc',
       search: '',
       status: '',
       priority: '',
     });
+  };
+
+  const handleViewModeChange = (mode: 'list' | 'kanban') => {
+    setViewMode(mode);
+    setFilters((prev) => ({
+      ...prev,
+      page: 1,
+      limit: mode === 'kanban' ? 100 : 10,
+    }));
   };
 
   // Create / Edit Task Submit
@@ -148,10 +157,10 @@ export const TasksPage: React.FC = () => {
     }
   };
 
-  // Quick stats calculation
-  const todoCount = tasks.filter((t) => t.status === 'To Do').length;
-  const inProgressCount = tasks.filter((t) => t.status === 'In Progress').length;
-  const doneCount = tasks.filter((t) => t.status === 'Done').length;
+  // Quick stats calculation (uses total DB breakdown if provided by API, otherwise fallback)
+  const todoCount = data?.stats ? data.stats.todo : tasks.filter((t) => t.status === 'To Do').length;
+  const inProgressCount = data?.stats ? data.stats.inProgress : tasks.filter((t) => t.status === 'In Progress').length;
+  const doneCount = data?.stats ? data.stats.done : tasks.filter((t) => t.status === 'Done').length;
 
   return (
     <Box sx={{ minHeight: '100vh', pb: 6, backgroundColor: 'background.default' }}>
@@ -269,7 +278,7 @@ export const TasksPage: React.FC = () => {
           onFilterChange={handleFilterChange}
           onResetFilters={handleResetFilters}
           viewMode={viewMode}
-          onViewModeChange={setViewMode}
+          onViewModeChange={handleViewModeChange}
         />
 
         {/* Content View Area */}

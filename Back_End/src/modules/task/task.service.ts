@@ -1,3 +1,4 @@
+import mongoose, { Types } from 'mongoose';
 import { Task, ITask, IAttachment, TaskStatus, TaskPriority } from '../../../DB/models/task.model.js';
 import { AppError } from '../../utils/appError.js';
 import { deleteFromCloudinary } from '../../middleware/upload.js';
@@ -35,12 +36,19 @@ export interface TaskQueryDTO {
   sortOrder?: 'asc' | 'desc';
 }
 
+export interface TaskStats {
+  todo: number;
+  inProgress: number;
+  done: number;
+}
+
 export interface PaginatedTasksResult {
   tasks: ITask[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+  stats: TaskStats;
 }
 
 export class TaskService {
@@ -104,14 +112,42 @@ export class TaskService {
       filter.title = { $regex: escapedSearch, $options: 'i' };
     }
 
+    // Stats filter matches search & priority but ignores status filter so card counts stay complete
+    const statsFilter: any = { user: new Types.ObjectId(userId) };
+
+    if (priority) {
+      statsFilter.priority = priority;
+    }
+
+    if (search && search.trim() !== '') {
+      const escapedSearch = escapeRegex(search.trim());
+      statsFilter.title = { $regex: escapedSearch, $options: 'i' };
+    }
+
     const skip = (page - 1) * limit;
     const sortOptions: any = {};
     sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-    const [tasks, total] = await Promise.all([
+    const [tasks, total, statusAgg] = await Promise.all([
       Task.find(filter).sort(sortOptions).skip(skip).limit(limit),
       Task.countDocuments(filter),
+      Task.aggregate([
+        { $match: statsFilter },
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ]),
     ]);
+
+    const stats: TaskStats = {
+      todo: 0,
+      inProgress: 0,
+      done: 0,
+    };
+
+    statusAgg.forEach((item: { _id: string; count: number }) => {
+      if (item._id === 'To Do') stats.todo = item.count;
+      else if (item._id === 'In Progress') stats.inProgress = item.count;
+      else if (item._id === 'Done') stats.done = item.count;
+    });
 
     const totalPages = Math.ceil(total / limit) || 1;
 
@@ -121,6 +157,7 @@ export class TaskService {
       page,
       limit,
       totalPages,
+      stats,
     };
   }
 

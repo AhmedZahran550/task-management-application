@@ -31,10 +31,17 @@ export interface TaskQueryDTO {
   sortOrder?: 'asc' | 'desc';
 }
 
+export interface TaskStats {
+  todo: number;
+  inProgress: number;
+  done: number;
+}
+
 export interface PaginatedTasksResult {
   tasks: ITask[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+  stats?: TaskStats;
 }
