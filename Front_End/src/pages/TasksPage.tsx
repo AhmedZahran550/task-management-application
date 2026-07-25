@@ -7,8 +7,6 @@ import {
   Pagination,
   Card,
   CardContent,
-  useMediaQuery,
-  useTheme,
   Snackbar,
   Alert,
 } from '@mui/material';
@@ -19,7 +17,6 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { Navbar } from '../components/common/Navbar';
 import { TaskFiltersBar } from '../components/tasks/TaskFiltersBar';
-import { TaskTable } from '../components/tasks/TaskTable';
 import { TaskCard } from '../components/tasks/TaskCard';
 import { KanbanBoard } from '../components/tasks/KanbanBoard';
 import { TaskFormDialog } from '../components/tasks/TaskFormDialog';
@@ -37,8 +34,6 @@ import {
 import type { ITask, TaskQueryDTO, TaskStatus } from '../types/task';
 
 export const TasksPage: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Query & Filter state
   const [filters, setFilters] = useState<TaskQueryDTO>({
@@ -307,8 +302,14 @@ export const TasksPage: React.FC = () => {
             }}
             onDeleteAttachment={handleDeleteAttachment}
           />
-        ) : isMobile ? (
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2.5 }}>
+        ) : (
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+              gap: 2.5,
+            }}
+          >
             {tasks.map((task: ITask) => (
               <TaskCard
                 key={task._id}
@@ -325,19 +326,6 @@ export const TasksPage: React.FC = () => {
               />
             ))}
           </Box>
-        ) : (
-          <TaskTable
-            tasks={tasks}
-            onEdit={(t: ITask) => {
-              setTaskToEdit(t);
-              setFormDialogOpen(true);
-            }}
-            onDelete={(id: string) => {
-              setTaskToDeleteId(id);
-              setDeleteDialogOpen(true);
-            }}
-            onDeleteAttachment={handleDeleteAttachment}
-          />
         )}
 
         {/* Server Pagination Controls */}

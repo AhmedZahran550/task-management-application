@@ -90,11 +90,10 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                       variant="caption"
                       color="text.secondary"
                       sx={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 1,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        maxWidth: 300,
+                        display: 'block',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        mt: 0.5,
                       }}
                     >
                       {task.description}

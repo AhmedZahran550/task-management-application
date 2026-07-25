@@ -101,10 +101,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             variant="body2"
             color="text.secondary"
             sx={{
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
               mb: 2,
             }}
           >
