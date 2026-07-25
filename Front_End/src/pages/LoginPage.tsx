@@ -130,14 +130,29 @@ export const LoginPage: React.FC = () => {
                       fullWidth
                       error={!!errors.password}
                       helperText={errors.password?.message}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton onClick={() => setShowPassword((prev) => !prev)} edge="end">
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                type="button"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                edge="end"
+                                tabIndex={-1}
+                                sx={{
+                                  color: 'text.secondary',
+                                  border: 'none',
+                                  outline: 'none',
+                                  '&:focus': { outline: 'none' },
+                                  '&:focus-visible': { outline: 'none' },
+                                }}
+                                aria-label="toggle password visibility"
+                              >
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        },
                       }}
                     />
                   )}

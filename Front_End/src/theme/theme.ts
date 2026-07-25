@@ -104,6 +104,21 @@ export const theme = createTheme({
         },
       },
     },
+    MuiCssBaseline: {
+      styleOverrides: {
+        'input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active': {
+          WebkitBoxShadow: '0 0 0 1000px #111827 inset !important',
+          WebkitTextFillColor: '#f9fafb !important',
+          caretColor: '#f9fafb',
+          transition: 'background-color 5000s ease-in-out 0s',
+        },
+        'input::-ms-reveal, input::-ms-clear, input::-webkit-credentials-auto-fill-button, input::-webkit-contacts-auto-fill-button': {
+          display: 'none !important',
+          visibility: 'hidden !important',
+          pointerEvents: 'none !important',
+        },
+      },
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
@@ -118,6 +133,14 @@ export const theme = createTheme({
           },
           '&:hover fieldset': {
             borderColor: 'rgba(99, 102, 241, 0.5)',
+          },
+        },
+        input: {
+          border: 'none !important',
+          outline: 'none !important',
+          '&:-webkit-autofill': {
+            WebkitBoxShadow: '0 0 0 1000px #111827 inset !important',
+            WebkitTextFillColor: '#f9fafb !important',
           },
         },
       },
